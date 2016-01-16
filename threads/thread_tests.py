@@ -54,10 +54,29 @@ class ThreadTest(unittest.TestCase):
         self.assertGreater(end, thread._update_time)
 
 class TestThreadObserver(unittest.TestCase):
-    pass
+    def test_init(self):
+        ob = ThreadObserver()
+
+        self.assertEqual([], ob._threads)
+
+    def test_add_observer(self):
+        ob = ThreadObserver()
+
+        thread = Thread({},{}, "")
+        ob.add_thread(thread)
+
+        self.assertEqual(ob._threads[0], thread)
+        self.assertEqual(len(ob._threads), 1)
+
+    def test_update_threads(self):
+        self.fail("test_update_threads: Not implemented")
 
 class TestThreadFactory(unittest.TestCase):
-    pass
+    def test_init(self):
+        self.fail("ThreadFactory: test_init not implemented")
+
+    def test_get_thread(self):
+        self.fail("ThreadFactory: test_get_thread not implemented")
 
 class TestThreadDownloader(unittest.TestCase):
     pass

@@ -8,6 +8,7 @@ via private messages
 
 import irc.bot
 import irc.strings
+from irc.client import Event, ServerConnection
 from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
 
 class IRCBotSettings:
@@ -28,8 +29,9 @@ class IRCBot(irc.bot.SingleServerIRCBot):
         super(IRCBot, self).__init__(settings.LOCATION, settings.NICK, settings.NICK)
         self.channel = settings.CHANNEL
 
-    def on_nicknameinuse(self, c, e):
+    def on_nicknameinuse(self, c:ServerConnection, e:Event):
         c.nick(c.get_nickname() + "_")
+
 
 class TestBot(irc.bot.SingleServerIRCBot):
     def __init__(self, channel, nickname, server, port=6667):
