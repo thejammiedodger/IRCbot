@@ -1,4 +1,4 @@
-# ${1:Project Name}
+# IRC Forum Reader Bot
 An IRC bot that can monitor and read posts on forums and send them to you via IRC.
 ## Installation
 The project is written in standard Python 3.4 with no external modules needed beyond the standard library. Clone the repo or download the files to a directory of your choice to install.
