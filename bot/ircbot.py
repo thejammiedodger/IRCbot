@@ -51,6 +51,9 @@ class TestBot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         c = self.connection
 
+        if nick != "bigboy69":
+            return
+
         if cmd == "disconnect":
             self.disconnect()
         elif cmd == "die":
@@ -70,6 +73,8 @@ class TestBot(irc.bot.SingleServerIRCBot):
             c.ctcp("DCC", nick, "CHAT chat %s %d" % (
                 ip_quad_to_numstr(dcc.localaddress),
                 dcc.localport))
+        elif cmd=="get":
+            pass
         else:
             c.notice(nick, "Not understood: " + cmd)
 
