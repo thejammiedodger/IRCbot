@@ -26,42 +26,82 @@ class IRCBot(irc.bot.SingleServerIRCBot):
     single servers.
     """
     def __init__(self, settings:IRCBotSettings):
+        """
+        Creates connection to irc server by calling superclass constructor.
+        :param settings: IRCBotSettings instance containing connection settings
+        :return: new IRCBot instance
+        """
         super(IRCBot, self).__init__(settings.LOCATION, settings.NICK, settings.NICK)
         self.channel = settings.CHANNEL
 
-    def on_nicknameinuse(self, c:ServerConnection, e:Event):
-        c.nick(c.get_nickname() + "_")
+    def on_nicknameinuse(self, conn:ServerConnection, event:Event)->str:
+        """
+        Trigered if username is take. Changes the username by appending
+        69 to it
+        :param conn: ServerConnection to irc server
+        :param event: Event
+        :return: str containing new username
+        """
+        conn.nick(conn.get_nickname() + "69")
 
+    def on_welcome(self, conn:ServerConnection, event:Event):
+        """
+        Triggered when a welcome message is received meaning
+        that the server connections has been established. Joins the channel
+        specified by self.channel.
+        :param conn: ServerConnection
+        :param event: Event
+        :return: None
+        """
+        conn.join(self.channel)
 
-class TestBot(irc.bot.SingleServerIRCBot):
-    def __init__(self, channel, nickname, server, port=6667):
-        irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
-        self.channel = channel
+    def on_privmsg(self, conn:ServerConnection, event:Event):
+        """
+        Triggered when a private message has been received. Executes the
+        appropriate command. This is one of the primary ways the bot interacts
+        with users.
+        :param conn: ServerConnection
+        :param event: Event
+        :return: None
+        """
+        self.do_command(event, event.arguments[0])
 
-    def on_nicknameinuse(self, c, e):
-        c.nick(c.get_nickname() + "_")
-
-    def on_welcome(self, c, e):
-        c.join(self.channel)
-
-    def on_privmsg(self, c, e):
-        self.do_command(e, e.arguments[0])
-
-    def on_pubmsg(self, c, e):
-        a = e.arguments[0].split(":", 1)
+    def on_pubmsg(self, conn:ServerConnection, event:Event):
+        """
+        Triggered when a public message is received. The other significant
+        way of interacting. Checks with the users nickname is allowed to execute
+        command and then passes the command to the do_command method.
+        :param conn: ServerConnection
+        :param event: Event
+        :return: None
+        """
+        a = event.arguments[0].split(":", 1)
         if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
-            self.do_command(e, a[1].strip())
+            self.do_command(event, a[1].strip())
         return
 
-    def on_dccmsg(self, c, e):
-        # non-chat DCC messages are raw bytes; decode as text
-        text = e.arguments[0].decode('utf-8')
-        c.privmsg("You said: " + text)
+    def on_dccmsg(self, conn:ServerConnection, event:Event):
+        """
+        Triggered when a non-chat DCC message has been received. DCC messages
+        are raw bytes so there's potential for using this for file transfer. Currently
+        for testing we merely decode them as text messages
+        :param conn: ServerConnection
+        :param event: Event
+        :return:None
+        """
+        text = event.arguments[0].decode('utf-8')
+        conn.privmsg("You said: " + text)
 
-    def on_dccchat(self, c, e):
-        if len(e.arguments) != 2:
+    def on_dccchat(self, conn:ServerConnection, event:Event):
+        """
+
+        :param conn: ServerConnection
+        :param event: Event
+        :return:None
+        """
+        if len(event.arguments) != 2:
             return
-        args = e.arguments[1].split()
+        args = event.arguments[1].split()
         if len(args) == 4:
             try:
                 address = ip_numstr_to_quad(args[2])
@@ -70,9 +110,15 @@ class TestBot(irc.bot.SingleServerIRCBot):
                 return
             self.dcc_connect(address, port)
 
-    def do_command(self, e, cmd):
-        nick = e.source.nick
-        c = self.connection
+    def do_command(self, event:Event, cmd):
+        """
+        Executes the specified command.
+        :param event: Event
+        :param cmd: str
+        :return: None
+        """
+        nick = event.source.nick
+        conn = self.connection
 
         if nick != "bigboy69":
             return
@@ -81,47 +127,16 @@ class TestBot(irc.bot.SingleServerIRCBot):
             self.disconnect()
         elif cmd == "die":
             self.die()
-        elif cmd == "stats":
-            for chname, chobj in self.channels.items():
-                c.notice(nick, "--- Channel statistics ---")
-                c.notice(nick, "Channel: " + chname)
-                users = sorted(chobj.users())
-                c.notice(nick, "Users: " + ", ".join(users))
-                opers = sorted(chobj.opers())
-                c.notice(nick, "Opers: " + ", ".join(opers))
-                voiced = sorted(chobj.voiced())
-                c.notice(nick, "Voiced: " + ", ".join(voiced))
+        elif cmd == "hello":
+            conn.notice(nick, "Hello")
         elif cmd == "dcc":
             dcc = self.dcc_listen()
-            c.ctcp("DCC", nick, "CHAT chat %s %d" % (
+            conn.ctcp("DCC", nick, "CHAT chat %s %d" % (
                 ip_quad_to_numstr(dcc.localaddress),
                 dcc.localport))
         elif cmd=="get":
             pass
         else:
-            c.notice(nick, "Not understood: " + cmd)
+            conn.notice(nick, "Not understood: " + cmd)
 
-def main():
-    import sys
-    if len(sys.argv) != 4:
-        print("Usage: testbot <server[:port]> <channel> <nickname>")
-        sys.exit(1)
 
-    s = sys.argv[1].split(":", 1)
-    server = s[0]
-    if len(s) == 2:
-        try:
-            port = int(s[1])
-        except ValueError:
-            print("Error: Erroneous port.")
-            sys.exit(1)
-    else:
-        port = 6667
-    channel = sys.argv[2]
-    nickname = sys.argv[3]
-
-    bot = TestBot(channel, nickname, server, port)
-    bot.start()
-
-if __name__ == "__main__":
-    main()
