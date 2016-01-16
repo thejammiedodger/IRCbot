@@ -1,5 +1,16 @@
-class Thread:
+#! /usr/bin/env python3
 
+
+"""
+This module contains tools for retrieving, monitoring, formatting and managing managing threads.
+"""
+
+
+class Thread:
+    """
+    Plain data object used to group together a dictionary containing all posts and
+    images images in a forum thread.
+    """
     def __init__(self, posts: {}, images:{}, url:str):
         self._posts = posts
         self._images = images
@@ -40,7 +51,10 @@ class Thread:
 
 
 class ThreadObserver:
-
+    """
+    Observer used to monitor threads for updates and change the
+    registered threads accordingly.
+    """
     def __init__(self):
         self._threads = []
 
@@ -52,7 +66,10 @@ class ThreadObserver:
 
 
 class ThreadFactory:
-
+    """
+    Factory used to conveniently set up a thread with the necessary
+    thread management tools in place.
+    """
     def __init__(self):
         pass
 
@@ -61,7 +78,10 @@ class ThreadFactory:
 
 
 class ThreadDownloader:
-
+    """
+    Downloads a thread at a given url and stores result
+    in a string.
+    """
     def __init__(self, url:str):
         pass
 
@@ -74,3 +94,14 @@ class ThreadDownloader:
     def get_thread(self)->str:
         pass
 
+
+class ThreadFormatter:
+    """
+    Handles all presentation of threads in a format suitable
+    for varius output channels.
+    """
+    def __init__(self, thread:Thread):
+        self._thread = thread
+
+    def get_irc_formatted_posts(self, from_time:str, to_time:str)->str:
+        pass
