@@ -8,3 +8,4 @@ class ThreadIRCMediator:
     quit
     """
     pass
+
