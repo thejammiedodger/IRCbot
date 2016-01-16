@@ -75,6 +75,7 @@ class IRCBot(irc.bot.SingleServerIRCBot):
         :param event: Event
         :return: None
         """
+
         a = event.arguments[0].split(":", 1)
         if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
             self.do_command(event, a[1].strip())
@@ -117,17 +118,19 @@ class IRCBot(irc.bot.SingleServerIRCBot):
         :param cmd: str
         :return: None
         """
+        print(cmd)
         nick = event.source.nick
         conn = self.connection
 
+
+
         if nick != "bigboy69":
             return
-
         if cmd == "disconnect":
             self.disconnect()
         elif cmd == "die":
             self.die()
-        elif cmd == "hello":
+        elif cmd == "post":
             conn.notice(nick, "Hello")
         elif cmd == "dcc":
             dcc = self.dcc_listen()

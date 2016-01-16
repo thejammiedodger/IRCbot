@@ -4,7 +4,7 @@
 """
 This module contains tools for retrieving, monitoring, formatting and managing managing threads.
 """
-
+from enum import Enum
 
 class Thread:
     """
@@ -50,6 +50,10 @@ class Thread:
         return image_list
 
 
+class ThreadType(Enum):
+    dpt=1
+    flt=2
+
 class ThreadObserver:
     """
     Observer used to monitor threads for updates and change the
@@ -73,8 +77,9 @@ class ThreadFactory:
     def __init__(self):
         pass
 
-    def getThread(self, thread_type, thread_observer:ThreadObserver)->Thread: #TODO: set thread_type to enum
-        pass
+    def getThread(self, thread_type:ThreadType, thread_observer:ThreadObserver)->Thread:
+        if thread_type==ThreadType.dpt:
+            pass
 
 
 class ThreadDownloader:
@@ -83,25 +88,38 @@ class ThreadDownloader:
     in a string.
     """
     def __init__(self, url:str):
-        pass
+        self._url = url
 
     def set_url(self, url:str):
-        pass
+        self._url = url
 
     def get_url(self)->str:
-        pass
+        return self._url
 
     def get_thread(self)->str:
+        #code to download thread
         pass
 
+class OutputFormat(Enum):
+    irc = 1
 
 class ThreadFormatter:
     """
     Handles all presentation of threads in a format suitable
     for varius output channels.
     """
-    def __init__(self, thread:Thread):
-        self._thread = thread
+    def __init__(self, thread_format:OutputFormat):
+        self._format = thread_format
 
-    def get_irc_formatted_posts(self, from_time:str, to_time:str)->str:
+        if self._format==OutputFormat.irc:
+            #create tamplate to stuff thread into
+            msg_template = """
+            poster: {poster_name} \n
+            image: {image_name}.{image_ext}
+            {content}
+            """
+            pass
+
+
+    def get_formatted_posts(self, posts:[], to_time:str)->str:
         pass
