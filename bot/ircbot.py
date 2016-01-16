@@ -5,7 +5,8 @@
 IRC bot that downloads and displays posts from online imageboard to
 via private messages
 """
-
+import json
+import urllib.request
 import irc.bot
 import irc.strings
 from irc.client import Event, ServerConnection
@@ -77,7 +78,7 @@ class IRCBot(irc.bot.SingleServerIRCBot):
         """
 
         a = event.arguments[0].split(":", 1)
-        if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
+        if len(a) > 1 and (irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()) or irc.strings.lower(a[0]) == "bb"):
             self.do_command(event, a[1].strip())
         return
 
@@ -128,6 +129,21 @@ class IRCBot(irc.bot.SingleServerIRCBot):
             return
         if cmd == "disconnect":
             self.disconnect()
+        elif cmd == "i":
+            conn.privmsg(self.channel, ">implying")
+        elif cmd == "m":
+            conn.privmsg(self.channel, "Mediocre.")
+        elif cmd[:6].lower() == "insult":
+            url = 'http://quandyfactory.com/insult/json'
+            with urllib.request.urlopen(url) as page:
+                try:
+                    contents = page.read()
+                    insult = json.loads(contents.decode())["insult"].lower()
+                    insult = cmd[7:]+" "+(insult if cmd[7:].find("bigboy")==-1 else " a bitch doesn't insult his owner.")
+
+                    conn.privmsg(self.channel, insult)
+                except TypeError:
+                    print("type error")
         elif cmd == "die":
             self.die()
         elif cmd == "post":
