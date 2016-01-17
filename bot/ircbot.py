@@ -35,6 +35,24 @@ class IRCBot(irc.bot.SingleServerIRCBot):
         super(IRCBot, self).__init__(settings.LOCATION, settings.NICK, settings.NICK)
         self.channel = settings.CHANNEL
 
+    def process_forever(self, timeout=0.2):
+        """Run an infinite loop, processing data from connections.
+
+        This method repeatedly calls process_once.
+
+        Arguments:
+
+            timeout -- Parameter to pass to process_once.
+        """
+        # This loop should specifically *not* be mutex-locked.
+        # Otherwise no other thread would ever be able to change
+        # the shared state of a Reactor object running this function.
+        log.debug("process_forever(timeout=%s)", timeout)
+        while 1:
+            #check for thread updates and forward them
+
+            self.process_once(timeout)
+
     def on_nicknameinuse(self, conn:ServerConnection, event:Event)->str:
         """
         Trigered if username is take. Changes the username by appending
